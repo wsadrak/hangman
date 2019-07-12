@@ -1,11 +1,9 @@
 package app;
 
 import java.util.NoSuchElementException;
-
 import io.DataReader;
 import model.Game;
 import model.Option;
-import model.WordsDatabase;
 
 public class HangmanController {
 	private DataReader dataReader = new DataReader();
@@ -23,10 +21,9 @@ public class HangmanController {
 			case EXIT:
 				exit();
 			}
-			
+
 		} while (option != Option.EXIT);
 
-		System.out.println("This is The End. Bye!");
 	}
 
 	private void printMenu() {
@@ -62,25 +59,23 @@ public class HangmanController {
 			validate(game, userGuess);
 			hiddenPassword = updatePassword(game);
 			hangmanPrinter(game.getMistakes());
-			
-			if(mistakes == 10) {
+
+			if (mistakes == 10) {
 				System.out.println("You lose!");
 				isGameInProgres = false;
 				break;
 			}
-			
-			if(hiddenPassword.equalsIgnoreCase(game.getGeneratedWord())) {
+
+			if (hiddenPassword.equalsIgnoreCase(game.getGeneratedWord())) {
 				System.out.println("You win!");
 				isGameInProgres = false;
 				break;
 			}
 		}
-		
-		
+
 		System.out.println("Generated password: " + game.getGeneratedWord().toUpperCase());
 
 	}
-
 
 	private String updatePassword(Game game) {
 		return game.generateNewHidden();
@@ -91,20 +86,30 @@ public class HangmanController {
 	}
 
 	private char readLetterFromUser() {
-		System.out.println("Type a letter: ");
-		String line = dataReader.readInput();
-		char userGuess = line.charAt(0);
-		return userGuess;
+		boolean isOk = false;
+		char myChar = ' ';
+		while (!isOk) {
+			try {
+				System.out.println("Type a letter: ");
+				myChar = dataReader.readInput().charAt(0);
+				isOk = true;
+			} catch (StringIndexOutOfBoundsException e) {
+				System.err.println("It's not a letter!");
+			}
+		}
+		return myChar;
 	}
-	
-	private String generateHiddenPassword(Game game){
+
+	private String generateHiddenPassword(Game game) {
 		return game.generateBasicHidden();
 	}
 
 	private void exit() {
+		System.out.println("This is The End. Bye!");
 		dataReader.close();
+		System.exit(0);
 	}
-	
+
 	public void hangmanPrinter(int mistakesCounter) {
 		switch (mistakesCounter) {
 		case 10:

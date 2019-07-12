@@ -54,28 +54,33 @@ public class HangmanController {
 		Game game = new Game();
 		String hiddenPassword = generateHiddenPassword(game);
 		int mistakes = game.getMistakes();
-		while (isNextMoveAvailable(mistakes)) {
+		boolean isGameInProgres = true;
+		while (isGameInProgres) {
 			System.out.println("Your invisible password: " + hiddenPassword);
 			char userGuess = readLetterFromUser();
 			System.out.println("Your guess: " + userGuess);
 			validate(game, userGuess);
 			hiddenPassword = updatePassword(game);
 			hangmanPrinter(game.getMistakes());
+			
+			if(mistakes == 10) {
+				System.out.println("You lose!");
+				isGameInProgres = false;
+				break;
+			}
+			
+			if(hiddenPassword.equalsIgnoreCase(game.getGeneratedWord())) {
+				System.out.println("You win!");
+				isGameInProgres = false;
+				break;
+			}
 		}
 		
-		if(mistakes < 10) {
-			System.out.println("You win!");
-		} else {
-			System.out.println("You lose!");
-		}
 		
 		System.out.println("Generated password: " + game.getGeneratedWord().toUpperCase());
 
 	}
 
-	private boolean isNextMoveAvailable(int mistakes) {
-		return mistakes < 10;
-	}
 
 	private String updatePassword(Game game) {
 		return game.generateNewHidden();

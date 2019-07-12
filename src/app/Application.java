@@ -1,10 +1,10 @@
 package app;
 
-public class App {
+public class Application {
 
 	public static void main(String[] args) {
-		HangmanController hangApp = new HangmanController();
-		hangApp.mainLoop();
+		HangmanController hangmanGame = new HangmanController();
+		hangmanGame.mainLoop();
 	}
 
 }

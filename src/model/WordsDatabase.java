@@ -11,12 +11,10 @@ public class WordsDatabase {
 	private Random random = new Random();
 	private ArrayList<String> database = new ArrayList<>();
 	
-	
 	public WordsDatabase() {
 		readDatabase();
 	}
 	
-
 	public String getRandomWord() {
 		int randomIndex = random.nextInt(database.size()+1);
 		return database.get(randomIndex);
@@ -31,11 +29,9 @@ public class WordsDatabase {
 			}
 
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+			System.err.println("Can't found file!");
+		} catch (IOException e) {
+			System.err.println("Can't open file!");
 		}
 	}
 

@@ -3,98 +3,110 @@ package model;
 import java.util.Set;
 import java.util.TreeSet;
 
+import app.GameStatus;
+import io.HangmanViewPrinter;
+
 public class Game {
 	private WordsDatabase wordsDataBase = new WordsDatabase();
-	// zmienne
-	private String generatedWord;
-	public String getGeneratedWord() {
-		return generatedWord;
-	}
-
-	private int guesses;
+	private String originalPassword;
+	private String hiddenPassword;
+	private int userGuesses;
+	private int userMistakes;
 	private Set<Character> usedLetters = new TreeSet<>();
-	private int mistakes;
 
-	// konstruktory
-	public Game(String guessWord) {
-		this.generatedWord = guessWord;
-	}
-	
 	public Game() {
-		this.generatedWord = wordsDataBase.getRandomWord();
-	}
-	
-	// metody
-	public String generateBasicHidden() {
-		StringBuilder hiddenPassword = new StringBuilder();
-		for (int i = 0; i < generatedWord.length(); i++) {
-			hiddenPassword.append("_");
-		}
-		return hiddenPassword.toString();
+		generatePassword();
+		generateHiddenPassword();
 	}
 
-	
-	public String generateNewHidden() {
-		String hidden = "";
-		for (int i = 0; i < generatedWord.length(); i++) {
-			if (usedLetters.contains(generatedWord.charAt(i))) {
-				hidden += generatedWord.charAt(i);
+	private void generatePassword() {
+		originalPassword = wordsDataBase.getRandomWord();
+	}
+
+	private void generateHiddenPassword() {
+		StringBuilder passwordBuilder = new StringBuilder();
+		for (int i = 0; i < originalPassword.length(); i++) {
+			passwordBuilder.append("_");
+		}
+		hiddenPassword = passwordBuilder.toString();
+	}
+
+	private void updateHiddenPassword() {
+		String updatedHiddenPassword = "";
+		for (int i = 0; i < originalPassword.length(); i++) {
+			if (usedLetters.contains(originalPassword.charAt(i))) {
+				updatedHiddenPassword += originalPassword.charAt(i);
 			} else {
-				hidden += "_";
+				updatedHiddenPassword += "_";
 			}
 		}
-		return hidden;
+
+		hiddenPassword = updatedHiddenPassword;
 	}
+
 	public void validate(char userGuess) {
 		updateStatistics(userGuess);
 		addToUsedLetters(userGuess);
 		showUsedLetters();
+		printHangmanView();
+		updateHiddenPassword();
 	}
 
 	public void updateStatistics(char userGuess) {
 		updateTries();
 		updateMistakes(userGuess);
-		System.out.println("Guesses: " + guesses);
-		System.out.println("Mistakes: " + getMistakes());
 	}
 
-	private void updateMistakes(char guess) {
-		String userGuess = Character.toString(guess);
-		if(!generatedWord.contains(userGuess) || usedLetters.contains(guess)) {
-			setMistakes(getMistakes() + 1);
+	private void updateMistakes(char letter) {
+		String userGuess = Character.toString(letter);
+		if (!originalPassword.contains(userGuess) || usedLetters.contains(letter)) {
+			userMistakes++;
 		}
+		System.out.println("Mistakes: " + userMistakes);
 	}
-	
+
 	private void updateTries() {
-		guesses++;
+		userGuesses++;
+		System.out.println("Guesses: " + userGuesses);
 	}
+
 	private void addToUsedLetters(char userGuess) {
 		usedLetters.add(userGuess);
 	}
 
 	private void showUsedLetters() {
 		System.out.print("Letters in set: ");
-		for (Character singleChar : usedLetters) {
-			System.out.print(singleChar + ", ");
+		for (Character letter : usedLetters) {
+			System.out.print(letter + ", ");
 		}
 		System.out.println("");
 	}
 
-	public int getMistakes() {
-		return mistakes;
+	public void printHangmanView() {
+		HangmanViewPrinter printer = new HangmanViewPrinter();
+		printer.printView(userMistakes);
+
 	}
 
-	public void setMistakes(int mistakes) {
-		this.mistakes = mistakes;
+	public void printPassword() {
+		System.out.println("Generated password: " + this.originalPassword.toUpperCase());
+
 	}
 
+	public void printHiddenPassword() {
+		System.out.println("Hidden password: " + this.hiddenPassword.toUpperCase());
 
+	}
 
-
-
-
-	
-
-	
+	public GameStatus updateGameStatus() {
+		if (userMistakes == 10) {
+			System.out.println("You lose!");
+			return GameStatus.LOSE;
+		} else if (hiddenPassword.equalsIgnoreCase(originalPassword)) {
+			System.out.println("You win!");
+			return GameStatus.WIN;
+		}
+		return GameStatus.IN_PROGRESS;
+	}
 
 }

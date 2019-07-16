@@ -16,7 +16,6 @@ public class WordsDatabase {
 		readDatabase();
 	}
 	
-//	private final String[] words = { "chocolate", "hangman", "framework", "database", "collection" };
 
 	public String getRandomWord() {
 		int randomIndex = random.nextInt(database.size()+1);

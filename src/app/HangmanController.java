@@ -6,8 +6,11 @@ import model.Game;
 import model.Option;
 
 public class HangmanController {
+	
 	private DataReader dataReader = new DataReader();
-
+	private Game game = new Game();
+	private GameStatus gameStatus = GameStatus.IN_PROGRESS;
+	
 	public void mainLoop() {
 		Option option;
 		do {
@@ -34,12 +37,12 @@ public class HangmanController {
 	}
 
 	private Option getOption() {
-		boolean optionOk = false;
+		boolean isOptionCorrect = false;
 		Option option = null;
-		while (!optionOk) {
+		while (!isOptionCorrect) {
 			try {
 				option = Option.createFromInt(dataReader.getInt());
-				optionOk = true;
+				isOptionCorrect = true;
 			} catch (NoSuchElementException e) {
 				System.err.println(e.getMessage() + "Please try again: ");
 			}
@@ -48,60 +51,46 @@ public class HangmanController {
 	}
 
 	private void play() {
-		Game game = new Game();
-		String hiddenPassword = generateHiddenPassword(game);
-		int mistakes = game.getMistakes();
-		boolean isGameInProgres = true;
-		while (isGameInProgres) {
-			System.out.println("Your invisible password: " + hiddenPassword);
+		while (gameStatus == GameStatus.IN_PROGRESS) {
+			printHiddenPassword();
 			char userGuess = readLetterFromUser();
-			System.out.println("Your guess: " + userGuess);
-			validate(game, userGuess);
-			hiddenPassword = updatePassword(game);
-			hangmanPrinter(game.getMistakes());
-
-			if (mistakes == 10) {
-				System.out.println("You lose!");
-				isGameInProgres = false;
-				break;
-			}
-
-			if (hiddenPassword.equalsIgnoreCase(game.getGeneratedWord())) {
-				System.out.println("You win!");
-				isGameInProgres = false;
-				break;
-			}
+			validateMove(userGuess);
+			gameStatus = updateGameStatus();
 		}
-
-		System.out.println("Generated password: " + game.getGeneratedWord().toUpperCase());
-
+		printPassword();
 	}
 
-	private String updatePassword(Game game) {
-		return game.generateNewHidden();
+	private void printPassword() {
+		game.printPassword();
 	}
 
-	private void validate(Game game, char userGuess) {
-		game.validate(userGuess);
+	private GameStatus updateGameStatus() {
+		gameStatus = game.updateGameStatus();
+		return gameStatus;
+	}
+
+	private void printHiddenPassword() {
+		game.printHiddenPassword();
+	}
+
+	private void validateMove(char letter) {
+		System.out.println("Your guess: " + letter);
+		game.validate(letter);
 	}
 
 	private char readLetterFromUser() {
-		boolean isOk = false;
-		char myChar = ' ';
-		while (!isOk) {
+		boolean isLetterValid = false;
+		char letter = ' ';
+		while (!isLetterValid) {
 			try {
 				System.out.println("Type a letter: ");
-				myChar = dataReader.readInput().charAt(0);
-				isOk = true;
+				letter = dataReader.readInput().charAt(0);
+				isLetterValid = true;
 			} catch (StringIndexOutOfBoundsException e) {
 				System.err.println("It's not a letter!");
 			}
 		}
-		return myChar;
-	}
-
-	private String generateHiddenPassword(Game game) {
-		return game.generateBasicHidden();
+		return letter;
 	}
 
 	private void exit() {
@@ -109,49 +98,6 @@ public class HangmanController {
 		dataReader.close();
 		System.exit(0);
 	}
-
-	public void hangmanPrinter(int mistakesCounter) {
-		switch (mistakesCounter) {
-		case 10:
-			System.out.println(
-					"\n  ================|\n //               |\n ||               |\n ||               |\n ||              _^_\n ||             / ..\\\n ||            [  _  ]\n ||             \\___/\n ||\n ||               ||    - *Snap!!!*\n ||              /||\\\n ||             //||\\\\\n ||            // || \\\\\n ||            *  ||  *\n ||              //\\\\\n ||             //  \\\\\n /\\            //    \\\\\n//\\\\         ***      ***\n/||\\\\\n_||_\\\\\n");
-			break;
-		case 9:
-			System.out.println(
-					"\n  ================|\n //               |\n ||               |\n ||               |\n ||              _^_\n ||             / ..\\\n ||            [  _  ]\n ||             \\___/\n ||               ||\n ||              /||\\\n ||             //||\\\\\n ||            // || \\\\\n ||            *  ||  *\n ||              //\n ||             //\n ||            //\n /\\          ***\n//\\\\ \n/||\\\\ \n_||_\\\\\n");
-			break;
-		case 8:
-			System.out.println(
-					"\n  ================|\n //               |\n ||               |\n ||               |\n ||              _^_\n ||             / ..\\\n ||            [  _  ]\n ||             \\___/\n ||               ||\n ||              /||\\\n ||             //||\\\\\n ||            // || \\\\\n ||            *  ||  *\n ||\n ||\n ||\n /\\\n//\\\\\n/||\\\\\n_||_\\\\\n");
-			break;
-		case 7:
-			System.out.println(
-					"\n  ================|\n //               |\n ||               |\n ||               |\n ||              _^_\n ||             / ..\\\n ||            [  _  ]\n ||             \\___/\n ||               ||\n ||              /||\n ||             //||\n ||            // ||\n ||            *  ||\n ||\n ||\n ||\n /\\\n//\\\\\n/||\\\\\n_||_\\\\\n");
-			break;
-		case 6:
-			System.out.println(
-					"\n  ================|\n //               |\n ||               |\n ||               |\n ||              _^_\n ||             / ..\\\n ||            [  _  ]\n ||             \\___/\n ||               ||\n ||               ||\n ||               ||\n ||               ||\n ||               ||\n ||\n ||\n ||\n /\\\n//\\\\\n/||\\\\\n_||_\\\\\n");
-			break;
-		case 5:
-			System.out.println(
-					"\n  ================|\n //               |\n ||               |\n ||               |\n ||              _^_\n ||             / ..\\\n ||            [  _  ]\n ||             \\___/\n ||               ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n /\\\n//\\\\\n/||\\\\\n_||_\\\\\n");
-			break;
-		case 4:
-			System.out.println(
-					"\n  ================|\n //               |\n ||               |\n ||               |\n ||              _^_\n ||             / ..\\\n ||            [  _  ]\n ||             \\___/\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n /\\\n//\\\\\n/||\\\\\n_||_\\\\\n");
-			break;
-		case 3:
-			System.out.println(
-					"\n  ================|\n //               |\n ||               |\n ||               |\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n /\\\n//\\\\\n/||\\\\\n_||_\\\\\n");
-			break;
-		case 2:
-			System.out.println(
-					"\n  ================\n //\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n /\\\n//\\\\\n/||\\\\\n_||_\\\\\n");
-			break;
-		case 1:
-			System.out.println(
-					"\n\n\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n ||\n /\\\n//\\\\\n/||\\\\\n_||_\\\\\n");
-			break;
-		}
-	}
+	
+	
 }

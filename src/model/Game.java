@@ -3,7 +3,6 @@ package model;
 import java.util.Set;
 import java.util.TreeSet;
 
-import app.GameStatus;
 import io.HangmanViewPrinter;
 
 public class Game {

@@ -3,6 +3,7 @@ package app;
 import java.util.NoSuchElementException;
 import io.DataReader;
 import model.Game;
+import model.GameStatus;
 import model.Option;
 
 public class HangmanController {
